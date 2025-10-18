@@ -70,8 +70,7 @@
 
   <script>
     // 🔗 Replace this with your actual Render YOLO endpoint
-    const YOLO_API = "https://two-final-case-a-thon.onrender.com/";
-
+    const YOLO_API = "https://two-final-case-a-thon.onrender.com/predict";
     const imageInput = document.getElementById("imageInput");
     const preview = document.getElementById("preview");
     const outputDiv = document.getElementById("output");
@@ -86,6 +85,10 @@
 
     async function analyzeImage() {
       const file = imageInput.files[0];
+      const detectResponse = await fetch(YOLO_API, {
+        method: "POST",
+        body: formData
+      });
       if (!file) {
         outputDiv.innerHTML = "⚠️ Please upload an image first.";
         return;
