@@ -72,7 +72,7 @@
       }
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("image", file); // ✅ CHANGED from "file" → "image"
 
       try {
         const response = await fetch("https://final-case-a-thon.onrender.com/predict", {
@@ -85,7 +85,7 @@
         }
 
         const contentType = response.headers.get("content-type");
-        if (contentType.includes("image")) {
+        if (contentType && contentType.includes("image")) {
           const blob = await response.blob();
           const imgURL = URL.createObjectURL(blob);
           outputDiv.innerHTML = `<img src="${imgURL}" alt="Predicted Output" />`;
@@ -101,3 +101,4 @@
   </script>
 </body>
 </html>
+
