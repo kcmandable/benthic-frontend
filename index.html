@@ -45,7 +45,11 @@
     }
     #output {
       margin-top: 20px;
-      text-align: center;
+      text-align: left;
+      background-color: #0f172a;
+      border-radius: 8px;
+      padding: 15px;
+      overflow-x: auto;
     }
     img.preview {
       max-width: 100%;
@@ -69,8 +73,9 @@
   </div>
 
   <script>
-    // 🔗 Replace this with your actual Render YOLO endpoint
+    // ✅ Use your Render YOLO API endpoint
     const YOLO_API = "https://two-final-case-a-thon.onrender.com/predict";
+
     const imageInput = document.getElementById("imageInput");
     const preview = document.getElementById("preview");
     const outputDiv = document.getElementById("output");
@@ -85,10 +90,6 @@
 
     async function analyzeImage() {
       const file = imageInput.files[0];
-      const detectResponse = await fetch(YOLO_API, {
-        method: "POST",
-        body: formData
-      });
       if (!file) {
         outputDiv.innerHTML = "⚠️ Please upload an image first.";
         return;
@@ -99,29 +100,28 @@
       outputDiv.innerHTML = `<p class="loading">🔍 Running YOLO detection...</p>`;
 
       try {
-        const response = await fetch(YOLO_API, {
+        // ✅ Send image to YOLO backend
+        const detectResponse = await fetch(YOLO_API, {
           method: "POST",
           body: formData
         });
 
-        if (!response.ok) {
-          throw new Error("YOLO API error: " + response.status);
+        if (!detectResponse.ok) {
+          throw new Error("YOLO API error: " + detectResponse.status);
         }
 
-        const contentType = response.headers.get("content-type");
+        const contentType = detectResponse.headers.get("content-type");
         if (contentType && contentType.includes("image")) {
-          // If the API returns an annotated image
-          const blob = await response.blob();
+          // ✅ Return image with bounding boxes
+          const blob = await detectResponse.blob();
           const imgURL = URL.createObjectURL(blob);
-          outputDiv.innerHTML = `<img src="${imgURL}" alt="Detection Output" />`;
+          outputDiv.innerHTML = `<h3>✅ Detection Result:</h3><img src="${imgURL}" class="preview" alt="Detected species" />`;
         } else {
-          // If the API returns JSON detections
-          const data = await response.json();
-          outputDiv.innerHTML = `
-            <h3>✅ Detections</h3>
-            <pre>${JSON.stringify(data, null, 2)}</pre>
-          `;
+          // If backend ever returns JSON (e.g., error)
+          const data = await detectResponse.json();
+          outputDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
         }
+
       } catch (err) {
         console.error(err);
         outputDiv.innerHTML = `<p style="color:#f87171;">❌ Error: ${err.message}</p>`;
@@ -130,3 +130,4 @@
   </script>
 </body>
 </html>
+
